@@ -505,8 +505,6 @@ main {
   width: min(720px, calc(100vw - 40px));
 }
 
-.colophon p { font-size: 14.5px; color: rgba(242,237,228,0.5); }
-
 .soundbtn {
   background: transparent;
   border: 1px solid var(--hairline);
