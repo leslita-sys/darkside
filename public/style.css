@@ -88,18 +88,19 @@ body.entered .wordmark { font-size: clamp(44px, 7vw, 76px); }
 body.entered .herobtn { display: none; }
 
 .herobtn {
-  margin-top: 36px;
-  padding: 16px 52px;
+  margin-top: 28px;
+  padding: 9px 30px;
   background: rgba(7, 8, 10, 0.25);
   color: var(--paper);
   border: 1px solid rgba(242, 237, 228, 0.55);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
   font-family: var(--title-font);
-  font-weight: 600;
-  font-size: 18px;
+  font-weight: 300;
+  font-size: 14px;
   text-transform: uppercase;
-  letter-spacing: 0.3em;
+  letter-spacing: 0.34em;
+  text-indent: 0.34em; /* recenters tracked uppercase text */
   cursor: pointer;
   transition: border-color 0.25s, color 0.25s, box-shadow 0.25s, background 0.25s;
 }
@@ -138,13 +139,6 @@ body.entered main { display: block; }
 .wordmark span {
   color: var(--red);
   text-shadow: 0 0 18px var(--red-glow), 0 0 60px var(--red-glow);
-}
-
-.tagline {
-  margin-top: 0;
-  font-size: 14.5px;
-  color: var(--paper-dim);
-  font-style: italic;
 }
 
 @keyframes flicker {
