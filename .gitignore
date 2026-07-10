@@ -1,0 +1,6 @@
+.env
+results/
+server.log
+.DS_Store
+node_modules/
+.impeccable/

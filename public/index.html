@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DARKSIDE — Join the Shredded Order</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<video id="bgvideo" autoplay muted loop playsinline>
+  <source src="/assets/burberry.mp4" type="video/mp4">
+</video>
+<div class="veil"></div>
+<canvas id="embers"></canvas>
+
+<div id="keybanner" class="keybanner hidden">
+  GEMINI_API_KEY missing — add it to <code>darkside/.env</code> and restart the server.
+</div>
+
+<header class="masthead">
+  <p class="kicker">An ode to Adam Driver and his ripped body</p>
+  <h1 class="wordmark">DARK<span>SIDE</span></h1>
+  <p class="tagline">Your face. His body. The galaxy never stood a chance.</p>
+</header>
+
+<main>
+  <!-- STEP PANEL -->
+  <section id="ritual" class="panel">
+    <div class="vessel-row">
+      <figure class="slot vessel">
+        <img src="/assets/kylo.png" alt="The vessel: Kylo Ren, shirtless, unbothered">
+        <figcaption>The Vessel</figcaption>
+      </figure>
+      <div class="plus" aria-hidden="true">+</div>
+      <figure class="slot face" id="dropzone" tabindex="0">
+        <img id="facepreview" class="hidden" alt="Your face">
+        <div id="dropprompt" class="dropprompt">
+          <span class="droptitle">Surrender your face</span>
+          <span class="drophint">Drop a photo here or click to choose</span>
+        </div>
+        <figcaption>The Face</figcaption>
+        <input type="file" id="fileinput" accept="image/*" hidden>
+      </figure>
+    </div>
+
+    <label class="namefield">
+      <span class="fieldlabel">State your given name</span>
+      <input type="text" id="namein" placeholder="e.g. Ben" maxlength="40" autocomplete="off" spellcheck="false">
+    </label>
+
+    <button id="gobtn" class="sithbtn" disabled>Embrace the Dark Side</button>
+    <p id="formhint" class="formhint">A face and a name. That is all the Dark Side asks. For now.</p>
+  </section>
+
+  <!-- LOADING CHAMBER -->
+  <section id="chamber" class="chamber hidden">
+    <div class="saber">
+      <div class="hilt"></div>
+      <div class="blade-track">
+        <div class="blade" id="blade"></div>
+        <div class="quillon q1"></div>
+        <div class="quillon q2"></div>
+      </div>
+    </div>
+    <p id="chamberline" class="chamberline">Kneeling before the Supreme Leader…</p>
+    <p class="chambersub">Forging takes up to a minute. The Dark Side does not rush.</p>
+  </section>
+
+  <!-- REVEAL -->
+  <section id="reveal" class="reveal hidden">
+    <p class="kicker revealkicker">The Order welcomes its newest knight</p>
+    <h2 id="sithname" class="sithname"></h2>
+    <p id="epithet" class="epithet"></p>
+    <div class="portraitwrap">
+      <img id="portrait" alt="Your Sith portrait">
+    </div>
+    <p id="dossier" class="dossier"></p>
+    <div class="actions">
+      <a id="downloadbtn" class="sithbtn" download>Download Portrait</a>
+      <button id="againbtn" class="ghostbtn">Rise Again</button>
+    </div>
+  </section>
+
+  <!-- ERROR -->
+  <section id="fault" class="fault hidden">
+    <h2 class="faulttitle">The ritual failed</h2>
+    <p id="faultmsg" class="faultmsg"></p>
+    <button id="retrybtn" class="ghostbtn">Return to the Chamber</button>
+  </section>
+</main>
+
+<footer class="colophon">
+  <button id="soundbtn" class="soundbtn" type="button">Sound: Off</button>
+  <p>Runs locally on 127.0.0.1. Your photo leaves this machine once — to Google's Gemini API, for the swap — and is never stored anywhere else.</p>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
