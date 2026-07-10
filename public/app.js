@@ -193,7 +193,7 @@ $('retrybtn').addEventListener('click', () => show(ritual));
 
 /* ---------- background film: start and loop at the horse run ---------- */
 const bg = $('bgvideo');
-const HORSE_RUN_T = 3.3; // seconds — Adam sprinting alongside the horse
+const HORSE_RUN_T = 4.5; // seconds — horse fully in frame beside Adam
 function seekToRun() { bg.currentTime = HORSE_RUN_T; }
 if (bg.readyState >= 1) seekToRun();
 else bg.addEventListener('loadedmetadata', seekToRun, { once: true });
