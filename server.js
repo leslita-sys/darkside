@@ -108,7 +108,7 @@ async function handleSwap(req, res) {
     if (tooBig) return;
     try {
       if (!process.env.GEMINI_API_KEY) {
-        return sendJson(res, 503, { error: 'No GEMINI_API_KEY configured. Add it to darkside/.env and restart.' });
+        return sendJson(res, 503, { error: 'No GEMINI_API_KEY configured. Set it in darkside/.env (local) or the Render Environment tab, then restart.' });
       }
       const { image, passcode } = JSON.parse(raw);
       if (process.env.PASSCODE && passcode !== process.env.PASSCODE) {
