@@ -16,6 +16,7 @@ $('enterbtn').addEventListener('click', () => {
 /* ---------- health check ---------- */
 fetch('/api/health').then(r => r.json()).then(h => {
   if (!h.keyConfigured) $('keybanner').classList.remove('hidden');
+  if (h.passcodeRequired) $('passfield').classList.remove('hidden');
 }).catch(() => {});
 
 /* ---------- upload ---------- */
@@ -164,7 +165,7 @@ gobtn.addEventListener('click', async () => {
     const res = await fetch('/api/swap', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ image: faceDataUrl }),
+      body: JSON.stringify({ image: faceDataUrl, passcode: $('passin').value || undefined }),
       signal: AbortSignal.timeout(240000),
     });
     const json = await res.json();

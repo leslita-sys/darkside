@@ -4,7 +4,10 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 
-const PORT = 4329;
+// Local default: 4329 on loopback. On Render, PORT is injected and we must
+// bind all interfaces.
+const PORT = process.env.PORT || 4329;
+const HOST = process.env.PORT ? '0.0.0.0' : '127.0.0.1';
 const ROOT = __dirname;
 const PUBLIC = path.join(ROOT, 'public');
 const ASSETS = path.join(ROOT, 'assets');
@@ -107,7 +110,10 @@ async function handleSwap(req, res) {
       if (!process.env.GEMINI_API_KEY) {
         return sendJson(res, 503, { error: 'No GEMINI_API_KEY configured. Add it to darkside/.env and restart.' });
       }
-      const { image } = JSON.parse(raw);
+      const { image, passcode } = JSON.parse(raw);
+      if (process.env.PASSCODE && passcode !== process.env.PASSCODE) {
+        return sendJson(res, 401, { error: 'Wrong passcode. The Dark Side guards its forge.' });
+      }
       const face = b64FromDataUrl(image);
       if (!face) return sendJson(res, 400, { error: 'Bad image payload.' });
 
@@ -180,7 +186,11 @@ const server = http.createServer((req, res) => {
   const url = new URL(req.url, 'http://localhost');
   if (req.method === 'POST' && url.pathname === '/api/swap') return handleSwap(req, res);
   if (url.pathname === '/api/health') {
-    return sendJson(res, 200, { ok: true, keyConfigured: !!process.env.GEMINI_API_KEY });
+    return sendJson(res, 200, {
+      ok: true,
+      keyConfigured: !!process.env.GEMINI_API_KEY,
+      passcodeRequired: !!process.env.PASSCODE,
+    });
   }
   let p = url.pathname === '/' ? '/index.html' : url.pathname;
   p = path.normalize(p).replace(/^(\.\.[/\\])+/, '');
@@ -188,6 +198,6 @@ const server = http.createServer((req, res) => {
   serveFile(req, res, path.join(base, p));
 });
 
-server.listen(PORT, '127.0.0.1', () => {
-  console.log(`DARKSIDE listening on http://127.0.0.1:${PORT} (key: ${process.env.GEMINI_API_KEY ? 'configured' : 'MISSING'})`);
+server.listen(PORT, HOST, () => {
+  console.log(`DARKSIDE listening on http://${HOST}:${PORT} (key: ${process.env.GEMINI_API_KEY ? 'configured' : 'MISSING'})`);
 });
