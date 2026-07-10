@@ -19,8 +19,18 @@ fetch('/api/health').then(r => r.json()).then(h => {
 }).catch(() => {});
 
 /* ---------- upload ---------- */
+function rejectFile(msg) {
+  faceDataUrl = null;
+  facepreview.classList.add('hidden');
+  dropprompt.classList.remove('hidden');
+  dropprompt.querySelector('.drophint').textContent = msg;
+  updateReady();
+}
+
 function acceptFile(file) {
-  if (!file || !file.type.startsWith('image/')) return;
+  if (!file || !file.type.startsWith('image/')) {
+    return rejectFile('That file didn’t take — use a JPG or PNG');
+  }
   const reader = new FileReader();
   reader.onload = () => {
     faceDataUrl = reader.result;
@@ -31,6 +41,11 @@ function acceptFile(file) {
   };
   reader.readAsDataURL(file);
 }
+
+// HEIC passes the type check but won't render in Chrome — treat as rejection
+facepreview.addEventListener('error', () => {
+  if (faceDataUrl) rejectFile('That format won’t preview here — use a JPG or PNG');
+});
 
 dropzone.addEventListener('click', () => fileinput.click());
 dropzone.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') fileinput.click(); });
@@ -150,6 +165,7 @@ gobtn.addEventListener('click', async () => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ image: faceDataUrl }),
+      signal: AbortSignal.timeout(240000),
     });
     const json = await res.json();
     if (!res.ok) throw new Error(json.error || `HTTP ${res.status}`);
@@ -161,11 +177,13 @@ gobtn.addEventListener('click', async () => {
     $('portrait').src = json.image;
     const dl = $('downloadbtn');
     dl.href = json.image;
-    dl.download = identity.name.toLowerCase().replace(/\s+/g, '-') + '.jpg';
+    dl.download = identity.name.toLowerCase().replace(/\s+/g, '-') + '.' + (json.ext || 'jpg');
     setTimeout(() => show(reveal), 450);
   } catch (e) {
     stopChamber();
-    $('faultmsg').textContent = e.message;
+    $('faultmsg').textContent = e.name === 'TimeoutError'
+      ? 'The forge went cold — the swap took over four minutes. Try again.'
+      : e.message;
     show(fault);
   }
 });

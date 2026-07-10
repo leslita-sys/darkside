@@ -9,6 +9,7 @@ const ROOT = __dirname;
 const PUBLIC = path.join(ROOT, 'public');
 const ASSETS = path.join(ROOT, 'assets');
 const RESULTS = path.join(ROOT, 'results');
+fs.mkdirSync(RESULTS, { recursive: true });
 
 function loadEnv() {
   const envPath = path.join(ROOT, '.env');
@@ -56,7 +57,10 @@ async function callGemini(model, face, signal) {
     }],
     generationConfig: {
       responseModalities: ['TEXT', 'IMAGE'],
-      imageConfig: { aspectRatio: '5:4', imageSize: '2K' },
+      // imageSize is only known-supported on the pro model; don't risk a 400 on fallbacks
+      imageConfig: model.startsWith('gemini-3-pro')
+        ? { aspectRatio: '5:4', imageSize: '2K' }
+        : { aspectRatio: '5:4' },
     },
   };
   const res = await fetch(
@@ -77,15 +81,28 @@ async function callGemini(model, face, signal) {
   }
   const parts = json.candidates?.[0]?.content?.parts || [];
   const img = parts.find(p => p.inlineData || p.inline_data);
-  if (!img) throw new Error('Model returned no image (it may have refused this photo).');
+  if (!img) {
+    const err = new Error('Model returned no image (it may have refused this photo).');
+    err.noImage = true;
+    throw err;
+  }
   const d = img.inlineData || img.inline_data;
   return { mime: d.mimeType || d.mime_type || 'image/jpeg', data: d.data };
 }
 
 async function handleSwap(req, res) {
   let raw = '';
-  req.on('data', c => { raw += c; if (raw.length > 30e6) req.destroy(); });
+  let tooBig = false;
+  req.on('data', c => {
+    raw += c;
+    if (raw.length > 30e6 && !tooBig) {
+      tooBig = true;
+      sendJson(res, 413, { error: 'That photo is too large — keep it under about 20 MB.' });
+      req.destroy();
+    }
+  });
   req.on('end', async () => {
+    if (tooBig) return;
     try {
       if (!process.env.GEMINI_API_KEY) {
         return sendJson(res, 503, { error: 'No GEMINI_API_KEY configured. Add it to darkside/.env and restart.' });
@@ -102,16 +119,23 @@ async function handleSwap(req, res) {
           break;
         } catch (e) {
           lastErr = e;
-          // Only fall through on model-availability problems; real errors surface.
-          if (![404, 403, 429].includes(e.status)) throw e;
+          // Fall through to the next model on availability problems, bad-config
+          // 400s, and safety refusals (no image returned); other errors surface.
+          if (!e.noImage && ![400, 403, 404, 429].includes(e.status)) throw e;
         }
       }
       if (!out) throw lastErr || new Error('All models failed.');
 
       const ext = out.mime.includes('png') ? 'png' : 'jpg';
       const file = `sith-${Date.now()}.${ext}`;
-      fs.writeFileSync(path.join(RESULTS, file), Buffer.from(out.data, 'base64'));
-      sendJson(res, 200, { image: `data:${out.mime};base64,${out.data}`, model: used, saved: `results/${file}` });
+      let saved = null;
+      try {
+        fs.writeFileSync(path.join(RESULTS, file), Buffer.from(out.data, 'base64'));
+        saved = `results/${file}`;
+      } catch (e) {
+        console.error('result save failed:', e.message); // never discard a paid image over a disk error
+      }
+      sendJson(res, 200, { image: `data:${out.mime};base64,${out.data}`, model: used, ext, saved });
     } catch (e) {
       const friendly = /quota|billing/i.test(e.message || '')
         ? 'Your Gemini key has no image-generation quota yet — the free tier allows none. Enable billing on the Google AI project behind the key, then try again.'
@@ -145,10 +169,10 @@ function serveFile(req, res, filePath) {
         'Content-Range': `bytes ${start}-${end}/${st.size}`,
         'Accept-Ranges': 'bytes',
       });
-      return fs.createReadStream(filePath, { start, end }).pipe(res);
+      return fs.createReadStream(filePath, { start, end }).on('error', () => res.destroy()).pipe(res);
     }
     res.writeHead(200, { 'Content-Type': type, 'Content-Length': st.size, 'Accept-Ranges': 'bytes' });
-    fs.createReadStream(filePath).pipe(res);
+    fs.createReadStream(filePath).on('error', () => res.destroy()).pipe(res);
   });
 }
 
