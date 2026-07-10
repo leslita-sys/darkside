@@ -191,8 +191,15 @@ gobtn.addEventListener('click', async () => {
 $('againbtn').addEventListener('click', () => show(ritual));
 $('retrybtn').addEventListener('click', () => show(ritual));
 
-/* ---------- sound toggle for the ode ---------- */
+/* ---------- background film: start and loop at the horse run ---------- */
 const bg = $('bgvideo');
+const HORSE_RUN_T = 3.3; // seconds — Adam sprinting alongside the horse
+function seekToRun() { bg.currentTime = HORSE_RUN_T; }
+if (bg.readyState >= 1) seekToRun();
+else bg.addEventListener('loadedmetadata', seekToRun, { once: true });
+bg.addEventListener('ended', () => { seekToRun(); bg.play(); });
+
+/* ---------- sound toggle for the ode ---------- */
 $('soundbtn').addEventListener('click', () => {
   bg.muted = !bg.muted;
   $('soundbtn').textContent = bg.muted ? 'Sound: Off' : 'Sound: On';
