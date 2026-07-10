@@ -7,6 +7,12 @@ const dropzone = $('dropzone'), fileinput = $('fileinput'), facepreview = $('fac
 
 let faceDataUrl = null;
 
+/* ---------- hero -> ritual ---------- */
+$('enterbtn').addEventListener('click', () => {
+  document.body.classList.add('entered');
+  ritual.scrollIntoView({ behavior: 'smooth', block: 'start' });
+});
+
 /* ---------- health check ---------- */
 fetch('/api/health').then(r => r.json()).then(h => {
   if (!h.keyConfigured) $('keybanner').classList.remove('hidden');
@@ -44,9 +50,6 @@ namein.addEventListener('input', updateReady);
 
 function updateReady() {
   gobtn.disabled = !(faceDataUrl && namein.value.trim().length > 0);
-  $('formhint').textContent = gobtn.disabled
-    ? 'A face and a name. That is all the Dark Side asks. For now.'
-    : 'Good. Gooood. Press the button.';
 }
 
 /* ---------- Sith name generator (local, deterministic) ---------- */

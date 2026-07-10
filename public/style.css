@@ -71,8 +71,48 @@ body {
 
 .masthead {
   text-align: center;
-  padding: clamp(40px, 7vh, 84px) 24px 8px;
+  padding: 20px 24px 8px;
+  min-height: calc(100vh - 190px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
+
+body.entered .masthead {
+  min-height: 0;
+  padding: clamp(14px, 2.5vh, 26px) 24px 0;
+}
+
+body.entered .wordmark { font-size: clamp(44px, 7vw, 76px); }
+body.entered .herobtn { display: none; }
+
+.herobtn {
+  margin-top: 36px;
+  padding: 16px 52px;
+  background: rgba(7, 8, 10, 0.25);
+  color: var(--paper);
+  border: 1px solid rgba(242, 237, 228, 0.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  font-family: var(--title-font);
+  font-weight: 600;
+  font-size: 18px;
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
+  cursor: pointer;
+  transition: border-color 0.25s, color 0.25s, box-shadow 0.25s, background 0.25s;
+}
+
+.herobtn:hover {
+  border-color: var(--red);
+  color: #fff;
+  background: rgba(255, 43, 43, 0.1);
+  box-shadow: 0 0 34px -6px var(--red-glow);
+}
+
+main { display: none; }
+body.entered main { display: block; }
 
 .kicker {
   font-family: var(--title-font);
@@ -101,8 +141,8 @@ body {
 }
 
 .tagline {
-  margin-top: 10px;
-  font-size: 18.5px;
+  margin-top: 0;
+  font-size: 14.5px;
   color: var(--paper-dim);
   font-style: italic;
 }
@@ -119,7 +159,7 @@ body {
 /* ---------- panels ---------- */
 
 main {
-  width: min(720px, calc(100vw - 40px));
+  width: min(560px, calc(100vw - 40px));
   margin: clamp(20px, 4vh, 44px) auto auto;
 }
 
@@ -128,7 +168,7 @@ main {
   border: 1px solid var(--hairline);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  padding: clamp(28px, 4vw, 44px);
+  padding: clamp(18px, 3vw, 28px);
 }
 
 /* vessel + face slots */
@@ -142,7 +182,7 @@ main {
 
 .slot {
   flex: 1 1 0;
-  max-width: 264px;
+  max-width: 196px;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -214,7 +254,7 @@ main {
 
 /* name field */
 
-.namefield { display: block; margin-top: 30px; }
+.namefield { display: block; margin-top: 20px; }
 
 .fieldlabel {
   display: block;
@@ -234,8 +274,8 @@ main {
   border-bottom: 2px solid rgba(255,43,43,0.5);
   color: var(--paper);
   font-family: var(--body-font);
-  font-size: 19px;
-  padding: 13px 16px;
+  font-size: 17.5px;
+  padding: 9px 14px;
   outline: none;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
@@ -252,14 +292,14 @@ main {
 .sithbtn {
   display: block;
   width: 100%;
-  margin-top: 26px;
-  padding: 17px 24px;
+  margin-top: 18px;
+  padding: 12px 20px;
   background: linear-gradient(to bottom, var(--red), var(--red-deep));
   color: #fff;
   border: none;
   font-family: var(--title-font);
   font-weight: 700;
-  font-size: 19px;
+  font-size: 16px;
   text-transform: uppercase;
   letter-spacing: 0.22em;
   cursor: pointer;
@@ -299,13 +339,6 @@ main {
 
 .ghostbtn:hover { border-color: var(--red); background: rgba(255,43,43,0.07); }
 
-.formhint {
-  margin-top: 16px;
-  text-align: center;
-  font-size: 15.5px;
-  color: var(--paper-dim);
-  font-style: italic;
-}
 
 /* ---------- loading chamber ---------- */
 

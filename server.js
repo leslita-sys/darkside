@@ -113,7 +113,10 @@ async function handleSwap(req, res) {
       fs.writeFileSync(path.join(RESULTS, file), Buffer.from(out.data, 'base64'));
       sendJson(res, 200, { image: `data:${out.mime};base64,${out.data}`, model: used, saved: `results/${file}` });
     } catch (e) {
-      sendJson(res, 502, { error: e.message });
+      const friendly = /quota|billing/i.test(e.message || '')
+        ? 'Your Gemini key has no image-generation quota yet — the free tier allows none. Enable billing on the Google AI project behind the key, then try again.'
+        : e.message;
+      sendJson(res, 502, { error: friendly });
     }
   });
 }
@@ -130,7 +133,7 @@ function serveFile(req, res, filePath) {
     const type = MIME[path.extname(filePath).toLowerCase()] || 'application/octet-stream';
     const range = /^bytes=(\d*)-(\d*)$/.exec(req.headers.range || '');
     if (range && (range[1] || range[2])) {
-      const start = range[1] ? parseInt(range[1], 10) : st.size - parseInt(range[2], 10);
+      const start = range[1] ? parseInt(range[1], 10) : Math.max(0, st.size - parseInt(range[2], 10));
       const end = range[1] && range[2] ? Math.min(parseInt(range[2], 10), st.size - 1) : st.size - 1;
       if (start >= st.size || start > end) {
         res.writeHead(416, { 'Content-Range': `bytes */${st.size}` });
